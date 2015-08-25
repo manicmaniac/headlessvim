@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+import pyte
+from . import process
+from . import arguments
+
+
+__all__ = ['Vim', 'open']
+
+
+def open(**kwargs):
+    """
+    A factory function to open new Vim object.
+    ``with`` statement can be used for this.
+    """
+    return Vim(**kwargs)
+
+
+class Vim(object):
+    """
+    A class representing a headless Vim.
+    Do not instantiate this directly, instead use ``open``.
+    """
+    default_args = '-N -i NONE -n -u NONE'
+
+    def __init__(self,
+                 executable='vim',
+                 args=None,
+                 env=None,
+                 encoding='utf-8',
+                 size=(80, 24),
+                 timeout=0.1):
+        """
+        :param str executable: command name to execute Vim
+        :param args: arguments to execute Vim
+        :type args: None or list or str
+        :param env: environment variables to execute Vim
+        :type env: None or dict
+        :param str encoding: internal encoding of Vim
+        :param tuple size: (lines, columns) of a screen connected to Vim
+        :param float timeout: seconds to wait I/O
+        """
+        parser = arguments.Parser(self.default_args)
+        args = parser.parse(args)
+        self._process = process.Process(executable, args, env)
+        self._encoding = encoding
+        self._screen = pyte.Screen(*size)
+        self._stream = pyte.Stream()
+        self._stream.attach(self._screen)
+        self._timeout = timeout
+        self.wait()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+        return True
+
+    def close(self):
+        """
+        Disconnect and close Vim.
+        """
+        self._process.terminate()
+        if self._process.is_alive():
+            self._process.kill()
+
+    def is_alive(self):
+        """
+        Check if the background Vim process is alive.
+
+        :return: True if the process is alive, else False
+        """
+        return self._process.is_alive()
+
+    def display(self):
+        """
+        Shows the terminal screen connecting to Vim.
+
+        :return: screen as a text
+        :rtype: str
+        """
+        return '\n'.join(self.display_lines())
+
+    def display_lines(self):
+        """
+        Shows the terminal screen splitted by newlines.
+
+        :return: screen as a list of strings
+        :rtype: list
+        """
+        return self._screen.display
+
+    def display_command_window(self):
+        """
+        Shows the command line window of Vim.
+
+        :return: string in command line window
+        :rtype: str
+        """
+        last_line = self.display_lines()[-1]
+        return last_line.rstrip()
+
+    def send_keys(self, keys, wait=True):
+        """
+        Send a raw key sequence to Vim.
+
+        :param str keys: key sequence to send
+        :param bool wait: whether if wait a response
+        """
+        self._process.stdin.write(bytearray(keys, self._encoding))
+        self._process.stdin.flush()
+        if wait:
+            self.wait()
+
+    def wait(self, timeout=None):
+        """
+        Wait for response until timeout.
+
+        :param float timeout: seconds to wait I/O
+        """
+        if timeout is None:
+            timeout = self._timeout
+        while self._process.check_readable(timeout):
+            self._flush()
+
+    def command(self, command):
+        """
+        Execute command on Vim.
+
+        :param str command: a command to execute
+        """
+        self.reset_mode()
+        self.send_keys(':{0}\n'.format(command))
+
+    def echo(self, expr):
+        """
+        Execute ``:echo`` command on Vim.
+
+        :param str expr: a expr to ``:echo``
+        :return: the result of ``:echo`` command
+        :rtype: str
+        """
+        self.command('echo {0}'.format(expr))
+        return self.display_command_window()
+
+    def reset_mode(self):
+        """
+        change Vim mode to ``normal``.
+        """
+        self.send_keys('\033\033')
+
+    @property
+    def executable(self):
+        """
+        The absolute path to the process.
+        """
+        return self._process.executable
+
+    @property
+    def args(self):
+        """
+        Arguments for the process.
+        """
+        return self._process.args
+
+    @property
+    def encoding(self):
+        """
+        Internal encoding of Vim.
+        """
+        return self._encoding
+
+    @property
+    def screen_size(self):
+        """
+        (lines, columns) tuple of a screen connected to Vim.
+        """
+        # somehow pyte swaps `size` tuple
+        return (self._screen.size[1], self._screen.size[0])
+
+    @screen_size.setter
+    def screen_size(self, size):
+        """
+        (lines, columns) tuple of a screen connected to Vim.
+        """
+        self._screen.resize(*size)
+
+    @property
+    def timeout(self):
+        """
+        Seconds to wait I/O.
+        """
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, timeout):
+        """
+        Seconds to wait I/O.
+        """
+        self._timeout = timeout
+
+    def _flush(self):
+        buf = self._process.stdout.read()
+        self._stream.feed(buf.decode(self._encoding))
