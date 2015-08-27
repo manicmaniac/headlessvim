@@ -2,6 +2,9 @@
 headlessvim
 ###########
 
+.. image:: https://travis-ci.org/manicmaniac/headlessvim.svg
+    :target: https://travis-ci.org/manicmaniac/headlessvim
+
 ============
 Introduction
 ============
