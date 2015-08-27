@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import pytest
+import unittest
 from headlessvim.arguments import Parser
 
 
-@pytest.fixture
-def parser(request):
-    return Parser('-N -i NONE -n -u NONE')
+class TestParser(unittest.TestCase):
+    def setUp(self):
+        self.parser = Parser('-N -i NONE -n -u NONE')
 
+    def testParse(self):
+        expect = ['-N', '-i', 'NONE', '-n', '-u', 'NONE']
+        self.assertEqual(self.parser.parse(None), expect)
+        args = ['-i', 'NONE', '-u', 'NONE']
+        self.assertEqual(self.parser.parse('-i NONE -u NONE'), args)
+        self.assertEqual(self.parser.parse(args), args)
 
-def test_parse(parser):
-    assert parser.parse(None) == ['-N', '-i', 'NONE', '-n', '-u', 'NONE']
-    args = ['-i', 'NONE', '-u', 'NONE']
-    assert parser.parse('-i NONE -u NONE') == args
-    assert parser.parse(args) == args
-
-
-def test_default_args(parser):
-    assert parser.default_args == '-N -i NONE -n -u NONE'
+    def testDefaultArgs(self):
+        expect = '-N -i NONE -n -u NONE'
+        self.assertEqual(self.parser.default_args, expect)

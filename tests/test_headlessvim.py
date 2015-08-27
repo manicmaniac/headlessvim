@@ -1,79 +1,69 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import pytest
+import unittest
 import os
 from headlessvim.headlessvim import Vim, open
 
 
-@pytest.yield_fixture
-def vim(request):
-    env = dict(os.environ, LANG='C')
-    with open(env=env) as vim:
-        yield vim
+class TestHeadlessVim(unittest.TestCase):
+    def setUp(self):
+        env = dict(os.environ, LANG='C')
+        self.vim = open(env=env)
+        self.skip_close = False
 
+    def tearDown(self):
+        if not self.skip_close:
+            self.vim.close()
 
-def test_open(vim):
-    assert isinstance(vim, Vim)
+    def testOpen(self):
+        self.assertTrue(isinstance(self.vim, Vim))
 
+    def testIsAlive(self):
+        self.skip_close = True
+        self.assertTrue(self.vim.is_alive())
+        self.vim.close()
+        self.assertFalse(self.vim.is_alive())
 
-def test_is_alive():
-    env = dict(os.environ, LANG='C')
-    vim = open(env=env)
-    assert vim.is_alive()
-    vim.close()
-    assert not vim.is_alive()
+    def testDisplay(self):
+        display = self.vim.display()
+        self.assertTrue('VIM - Vi IMproved' in display)
+        self.assertTrue('by Bram Moolenaar et al.' in display)
+        self.assertTrue('type  :q<Enter>' in display)
+        self.assertTrue('type  :help<Enter>' in display)
 
+    def testDisplayLines(self):
+        lines = self.vim.display_lines()
+        self.assertTrue(all(len(line) == 80 for line in lines))
+        self.assertTrue(any('VIM - Vi IMproved' in line for line in lines))
+        self.assertEqual(lines[-1].strip(), '')
 
-def test_display(vim):
-    display = vim.display()
-    assert 'VIM - Vi IMproved' in display
-    assert 'by Bram Moolenaar et al.' in display
-    assert 'type  :q<Enter>' in display
-    assert 'type  :help<Enter>' in display
+    def testDisplayCommandWindow(self):
+        self.assertEqual(self.vim.display_command_window(), '')
 
+    def testSendKeys(self):
+        self.vim.send_keys('ispam\033')
+        self.assertTrue('spam' in self.vim.display_lines()[0])
 
-def test_display_lines(vim):
-    lines = vim.display_lines()
-    assert all(len(line) == 80 for line in lines)
-    assert any('VIM - Vi IMproved' in line for line in lines)
-    assert lines[-1].strip() == ''
+    def testCommand(self):
+        self.vim.command('echo "ham"')
+        self.assertEqual(self.vim.display_command_window().rstrip(), 'ham')
 
+    def testEcho(self):
+        self.assertTrue(self.vim.echo('"egg"'), 'egg')
 
-def test_display_command_window(vim):
-    assert vim.display_command_window() == ''
+    def testExecutable(self):
+        self.assertTrue('vim' in self.vim.executable)
+        self.assertTrue(os.path.isabs(self.vim.executable))
 
+    def testArgs(self):
+        self.assertTrue('-u' in self.vim.args)
 
-def test_send_keys(vim):
-    vim.send_keys('ispam\033')
-    assert 'spam' in vim.display_lines()[0]
+    def testEncoding(self):
+        self.assertEqual(self.vim.encoding.lower(), 'utf-8')
 
+    def testSize(self):
+        self.assertEqual(self.vim.screen_size, (80, 24))
 
-def test_command(vim):
-    vim.command('echo "ham"')
-    assert vim.display_command_window().rstrip() == 'ham'
-
-
-def test_echo(vim):
-    assert vim.echo('"egg"') == 'egg'
-
-
-def test_executable(vim):
-    assert 'vim' in vim.executable
-    assert os.path.isabs(vim.executable)
-
-
-def test_args(vim):
-    assert '-u' in vim.args
-
-
-def test_encoding(vim):
-    assert vim.encoding.lower() == 'utf-8'
-
-
-def test_size(vim):
-    assert vim.screen_size == (80, 24)
-
-
-def test_timeout(vim):
-    assert vim.timeout == 0.1
+    def testTimeout(self):
+        self.assertEqual(self.vim.timeout, 0.1)

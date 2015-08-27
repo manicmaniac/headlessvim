@@ -23,7 +23,7 @@ class Parser(object):
         """
         if args is None:
             args = self._default_args
-        if self._is_kind_of_string(args):
+        if isinstance(args, basestring):
             args = shlex.split(args)
         return args
 
@@ -33,8 +33,3 @@ class Parser(object):
         Default arguments given on ``init``.
         """
         return self._default_args
-
-    def _is_kind_of_string(self, value):
-        if not hasattr(__builtins__, 'basestring'):
-            basestring = str
-        return isinstance(value, basestring)
