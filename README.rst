@@ -8,6 +8,10 @@ headlessvim
 .. image:: https://coveralls.io/repos/manicmaniac/headlessvim/badge.svg?branch=master&service=github
     :target: https://coveralls.io/github/manicmaniac/headlessvim?branch=master
 
+.. image:: https://codeclimate.com/github/manicmaniac/headlessvim/badges/gpa.svg
+    :target: https://codeclimate.com/github/manicmaniac/headlessvim
+    :alt: Code Climate
+
 ============
 Introduction
 ============
