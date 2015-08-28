@@ -5,6 +5,9 @@ headlessvim
 .. image:: https://travis-ci.org/manicmaniac/headlessvim.svg
     :target: https://travis-ci.org/manicmaniac/headlessvim
 
+.. image:: https://coveralls.io/repos/manicmaniac/headlessvim/badge.svg?branch=master&service=github
+    :target: https://coveralls.io/github/manicmaniac/headlessvim?branch=master
+
 ============
 Introduction
 ============
