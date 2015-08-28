@@ -27,7 +27,9 @@ Also, ``headlessvim`` is fully compatible among Python 2.6, 2.7, 3.2, 3.3, 3.4.
 Install
 =======
 
-The good old ``setup.py``::
+The good old ``setup.py``
+
+.. code:: sh
 
     python setup.py install
 
@@ -35,7 +37,9 @@ The good old ``setup.py``::
 Examples
 ========
 
-A simple example is here::
+A simple example is here:
+
+.. code:: python
 
     >>> import headlessvim
     >>> with headlessvim.open() as vim:
@@ -50,7 +54,9 @@ A simple example is here::
     ...
     'ham'
 
-Integrating to ``unittest``::
+Integrating to ``unittest``:
+
+.. code:: python
 
     import unittest
     import headlessvim
@@ -72,7 +78,9 @@ Testing
 
 The unit test requires ``pytest`` module.
 
-Execute::
+Execute:
+
+.. code:: sh
 
     python setup.py test
 
