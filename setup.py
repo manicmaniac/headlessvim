@@ -1,14 +1,30 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import platform
 from setuptools import setup
+
+
+def tests_require():
+    res = []
+    version = platform.python_version()
+    if version < '2.7.0':
+        res.append('unittest2')
+    if version < '3.3.0':
+        res.append('mock')
+    return res
+
+
+def read(path):
+    with open(path) as f:
+        return f.read()
 
 
 setup(
     name='headlessvim',
-    version='0.0.2',
+    version='0.0.3',
     description='programmable Vim, no need of +clientserver!',
-    long_description=open('README.rst').read(),
+    long_description=read('README.rst'),
     keywords='vim test',
     url='https://github.com/manicmaniac/headlessvim',
     classifiers=[
@@ -26,7 +42,8 @@ setup(
     license='MIT',
     packages=['headlessvim'],
     install_requires=['pyte>=0.4.10'],
-    tests_require=['mock'],
+    tests_require=tests_require(),
+    setup_requires=['flake8'],
     use_2to3=True,
     test_suite='tests',
 )

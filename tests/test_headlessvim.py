@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from headlessvim.headlessvim import Vim, open
 
@@ -18,14 +21,13 @@ class TestHeadlessVim(unittest.TestCase):
         )
         assert os.path.isdir(self.plugin_dir)
         self.plugin_entry_script = 'plugin/spam.vim'
-        # assert os.path.isfile(os.path.join(self.plugin_dir, self.plugin_entry_script))
 
     def tearDown(self):
         if not self.skip_close:
             self.vim.close()
 
     def testOpen(self):
-        self.assertTrue(isinstance(self.vim, Vim))
+        self.assertIsInstance(self.vim, Vim)
 
     def testIsAlive(self):
         self.skip_close = True
@@ -35,10 +37,10 @@ class TestHeadlessVim(unittest.TestCase):
 
     def testDisplay(self):
         display = self.vim.display()
-        self.assertTrue('VIM - Vi IMproved' in display)
-        self.assertTrue('by Bram Moolenaar et al.' in display)
-        self.assertTrue('type  :q<Enter>' in display)
-        self.assertTrue('type  :help<Enter>' in display)
+        self.assertIn('VIM - Vi IMproved', display)
+        self.assertIn('by Bram Moolenaar et al.', display)
+        self.assertIn('type  :q<Enter>', display)
+        self.assertIn('type  :help<Enter>', display)
 
     def testDisplayLines(self):
         lines = self.vim.display_lines()
@@ -48,11 +50,11 @@ class TestHeadlessVim(unittest.TestCase):
 
     def testSendKeys(self):
         self.vim.send_keys('ispam\033')
-        self.assertTrue('spam' in self.vim.display_lines()[0])
+        self.assertIn('spam', self.vim.display_lines()[0])
 
     def testInstallPlugin(self):
         self.vim.install_plugin(self.plugin_dir, self.plugin_entry_script)
-        self.assertTrue(self.plugin_dir in self.vim.runtimepath)
+        self.assertIn(self.plugin_dir, self.vim.runtimepath)
         self.assertEqual(self.vim.command('Spam'), 'spam')
 
     def testCommand(self):
@@ -79,11 +81,11 @@ class TestHeadlessVim(unittest.TestCase):
         self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
 
     def testExecutable(self):
-        self.assertTrue('vim' in self.vim.executable)
+        self.assertIn('vim', self.vim.executable)
         self.assertTrue(os.path.isabs(self.vim.executable))
 
     def testArgs(self):
-        self.assertTrue('-u' in self.vim.args)
+        self.assertIn('-u', self.vim.args)
 
     def testEncoding(self):
         self.assertEqual(self.vim.encoding.lower(), 'utf-8')
