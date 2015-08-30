@@ -5,6 +5,7 @@ import tempfile
 import pyte
 from . import process
 from . import arguments
+from . import runtimepath
 
 
 __all__ = ['Vim', 'open']
@@ -52,6 +53,7 @@ class Vim(object):
         self._timeout = timeout
         self._tempfile = tempfile.NamedTemporaryFile()
         self.wait()
+        self.runtimepath = runtimepath.RuntimePath(self)
 
     def __enter__(self):
         return self
