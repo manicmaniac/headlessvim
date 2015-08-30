@@ -35,6 +35,12 @@ Also, ``headlessvim`` is fully compatible among Python 2.6, 2.7, 3.2, 3.3, 3.4.
 Install
 =======
 
+Using ``pip`` (recommended)
+
+.. code:: sh
+
+    pip install headlessvim
+
 The good old ``setup.py``
 
 .. code:: sh
