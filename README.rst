@@ -12,6 +12,14 @@ headlessvim
     :target: https://codeclimate.com/github/manicmaniac/headlessvim
     :alt: Code Climate
 
+.. image:: https://img.shields.io/pypi/v/headlessvim.svg
+    :target: https://pypi.python.org/pypi/headlessvim
+    :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/pyversions/headlessvim.svg
+    :target: https://pypi.python.org/pypi/headlessvim
+    :alt: Python Versions
+
 ============
 Introduction
 ============
