@@ -11,6 +11,14 @@ class TestHeadlessVim(unittest.TestCase):
         env = dict(os.environ, LANG='C')
         self.vim = open(env=env)
         self.skip_close = False
+        fixtures_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
+        self.plugin_dir = os.path.join(
+            fixtures_dir,
+            'spam'
+        )
+        assert os.path.isdir(self.plugin_dir)
+        self.plugin_entry_script = 'plugin/spam.vim'
+        # assert os.path.isfile(os.path.join(self.plugin_dir, self.plugin_entry_script))
 
     def tearDown(self):
         if not self.skip_close:
@@ -42,10 +50,17 @@ class TestHeadlessVim(unittest.TestCase):
         self.vim.send_keys('ispam\033')
         self.assertTrue('spam' in self.vim.display_lines()[0])
 
+    def testInstallPlugin(self):
+        self.vim.install_plugin(self.plugin_dir, self.plugin_entry_script)
+        self.assertTrue(self.plugin_dir in self.vim.runtimepath)
+        self.assertEqual(self.vim.command('Spam'), 'spam')
+
     def testCommand(self):
         self.assertEqual(self.vim.command('echo "ham"'), 'ham')
+        self.assertEqual(self.vim.command('echo "egg"'), 'egg')
 
     def testEcho(self):
+        self.assertEqual(self.vim.echo('"ham"'), 'ham')
         self.assertEqual(self.vim.echo('"egg"'), 'egg')
 
     def testExecutable(self):

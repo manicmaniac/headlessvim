@@ -26,6 +26,7 @@ setup(
     license='MIT',
     packages=['headlessvim'],
     install_requires=['pyte>=0.4.10'],
+    tests_require=['mock'],
     use_2to3=True,
     test_suite='tests',
 )
