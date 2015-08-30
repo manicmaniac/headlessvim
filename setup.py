@@ -22,7 +22,7 @@ def read(path):
 
 setup(
     name='headlessvim',
-    version='0.0.2',
+    version='0.0.3',
     description='programmable Vim, no need of +clientserver!',
     long_description=read('README.rst'),
     keywords='vim test',
