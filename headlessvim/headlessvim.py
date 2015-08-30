@@ -134,7 +134,7 @@ class Vim(object):
         """
         self.runtimepath.append(dir)
         if entry_script is not None:
-            self.command('runtime! {0}'.format(entry_script), capture=False)
+            self.command('runtime! {0}'.format(entry_script), False)
 
     def command(self, command, capture=True):
         """
@@ -149,11 +149,11 @@ class Vim(object):
         :rtype: str
         """
         if capture:
-            self.command('redir! > {0}'.format(self._tempfile.name), capture=False)
+            self.command('redir! > {0}'.format(self._tempfile.name), False)
         self.set_mode('command')
         self.send_keys('{0}\n'.format(command))
         if capture:
-            self.command('redir END', capture=False)
+            self.command('redir END', False)
             self._tempfile.seek(0)
             return self._tempfile.read().strip('\n')
 
