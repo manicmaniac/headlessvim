@@ -63,6 +63,21 @@ class TestHeadlessVim(unittest.TestCase):
         self.assertEqual(self.vim.echo('"ham"'), 'ham')
         self.assertEqual(self.vim.echo('"egg"'), 'egg')
 
+    def testSetMode(self):
+        self.vim.set_mode('insert')
+        self.vim.send_keys('spam')
+        self.vim.set_mode('normal')
+        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
+
+    def testSetModeInvalid(self):
+        self.assertRaises(ValueError, self.vim.set_mode, 'invalid-mode')
+
+    def testSetModeSetter(self):
+        self.vim.mode = 'insert'
+        self.vim.send_keys('spam')
+        self.vim.set_mode('normal')
+        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
+
     def testExecutable(self):
         self.assertTrue('vim' in self.vim.executable)
         self.assertTrue(os.path.isabs(self.vim.executable))

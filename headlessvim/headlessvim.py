@@ -62,6 +62,11 @@ class Vim(object):
         self.close()
         return True
 
+    def __setattr__(self, name, value):
+        if name == 'mode':
+            self.set_mode(value)
+        super(Vim, self).__setattr__(name, value)
+
     def close(self):
         """
         Disconnect and close Vim.
@@ -143,19 +148,14 @@ class Vim(object):
         :return: the output of command
         :rtype: str
         """
-        self.reset_mode()
         if capture:
             self.command('redir! > {0}'.format(self._tempfile.name), capture=False)
-        self.send_keys(':{0}\n'.format(command))
+        self.set_mode('command')
+        self.send_keys('{0}\n'.format(command))
         if capture:
             self.command('redir END', capture=False)
             self._tempfile.seek(0)
             return self._tempfile.read().strip('\n')
-
-    def clear_command_window(self):
-        self.reset_mode()
-        self.send_keys('i')
-        self.reset_mode()
 
     def echo(self, expr):
         """
@@ -167,11 +167,29 @@ class Vim(object):
         """
         return self.command('echo {0}'.format(expr))
 
-    def reset_mode(self):
+    def set_mode(self, mode):
         """
-        change Vim mode to ``normal``.
+        Set Vim mode to ``mode``.
+        Supported modes: ``normal``, ``insert``, ``command``,
+        ``visual``, ``visual-block``
+        Raises ValueError if ``mode`` is not supported.
+
+        :param str mode: Vim mode to set
         """
-        self.send_keys('\033\033')
+        keys = '\033\033'
+        if mode == 'normal':
+            pass
+        elif mode == 'insert':
+            keys += 'i'
+        elif mode == 'command':
+            keys += ':'
+        elif mode == 'visual':
+            keys += 'v'
+        elif mode == 'visual-block':
+            keys += 'V'
+        else:
+            raise ValueError('mode {0} is not supported'.format(mode))
+        self.send_keys(keys)
 
     @property
     def executable(self):
