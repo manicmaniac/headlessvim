@@ -2,13 +2,13 @@
 headlessvim
 ###########
 
-.. image:: https://travis-ci.org/manicmaniac/headlessvim.svg
+.. image:: https://img.shields.io/travis/manicmaniac/headlessvim.svg
     :target: https://travis-ci.org/manicmaniac/headlessvim
 
-.. image:: https://coveralls.io/repos/manicmaniac/headlessvim/badge.svg?branch=master&service=github
+.. image:: https://img.shields.io/coveralls/manicmaniac/headlessvim.svg
     :target: https://coveralls.io/github/manicmaniac/headlessvim?branch=master
 
-.. image:: https://codeclimate.com/github/manicmaniac/headlessvim/badges/gpa.svg
+.. image:: https://img.shields.io/codeclimate/github/manicmaniac/headlessvim.svg
     :target: https://codeclimate.com/github/manicmaniac/headlessvim
     :alt: Code Climate
 
