@@ -15,11 +15,16 @@ def tests_require():
     return res
 
 
+def read(path):
+    with open(path) as f:
+        return f.read()
+
+
 setup(
     name='headlessvim',
     version='0.0.2',
     description='programmable Vim, no need of +clientserver!',
-    long_description=open('README.rst').read(),
+    long_description=read('README.rst'),
     keywords='vim test',
     url='https://github.com/manicmaniac/headlessvim',
     classifiers=[
