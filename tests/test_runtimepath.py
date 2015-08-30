@@ -66,7 +66,8 @@ class TestRuntimePath(unittest.TestCase):
         path = '/usr/local/share/vimfiles'
         self.runtimepath.insert(0, path)
         self.assertEqual(self.runtimepath[0], path)
-        command = 'set {0}'.format(self.string.replace('=~/.vim', '=' + path + ',~/.vim'))
+        command = 'set {0}'.format(self.string.replace(
+            '=~/.vim', '=' + path + ',~/.vim'))
         self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)
 

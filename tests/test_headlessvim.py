@@ -18,7 +18,6 @@ class TestHeadlessVim(unittest.TestCase):
         )
         assert os.path.isdir(self.plugin_dir)
         self.plugin_entry_script = 'plugin/spam.vim'
-        # assert os.path.isfile(os.path.join(self.plugin_dir, self.plugin_entry_script))
 
     def tearDown(self):
         if not self.skip_close:

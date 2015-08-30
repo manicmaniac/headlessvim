@@ -3,7 +3,6 @@
 
 import unittest
 import os
-import time
 from headlessvim.process import Process
 
 
