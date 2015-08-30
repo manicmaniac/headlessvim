@@ -11,6 +11,14 @@ class TestHeadlessVim(unittest.TestCase):
         env = dict(os.environ, LANG='C')
         self.vim = open(env=env)
         self.skip_close = False
+        fixtures_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
+        self.plugin_dir = os.path.join(
+            fixtures_dir,
+            'spam'
+        )
+        assert os.path.isdir(self.plugin_dir)
+        self.plugin_entry_script = 'plugin/spam.vim'
+        # assert os.path.isfile(os.path.join(self.plugin_dir, self.plugin_entry_script))
 
     def tearDown(self):
         if not self.skip_close:
@@ -38,19 +46,37 @@ class TestHeadlessVim(unittest.TestCase):
         self.assertTrue(any('VIM - Vi IMproved' in line for line in lines))
         self.assertEqual(lines[-1].strip(), '')
 
-    def testDisplayCommandWindow(self):
-        self.assertEqual(self.vim.display_command_window(), '')
-
     def testSendKeys(self):
         self.vim.send_keys('ispam\033')
         self.assertTrue('spam' in self.vim.display_lines()[0])
 
+    def testInstallPlugin(self):
+        self.vim.install_plugin(self.plugin_dir, self.plugin_entry_script)
+        self.assertTrue(self.plugin_dir in self.vim.runtimepath)
+        self.assertEqual(self.vim.command('Spam'), 'spam')
+
     def testCommand(self):
-        self.vim.command('echo "ham"')
-        self.assertEqual(self.vim.display_command_window().rstrip(), 'ham')
+        self.assertEqual(self.vim.command('echo "ham"'), 'ham')
+        self.assertEqual(self.vim.command('echo "egg"'), 'egg')
 
     def testEcho(self):
-        self.assertTrue(self.vim.echo('"egg"'), 'egg')
+        self.assertEqual(self.vim.echo('"ham"'), 'ham')
+        self.assertEqual(self.vim.echo('"egg"'), 'egg')
+
+    def testSetMode(self):
+        self.vim.set_mode('insert')
+        self.vim.send_keys('spam')
+        self.vim.set_mode('normal')
+        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
+
+    def testSetModeInvalid(self):
+        self.assertRaises(ValueError, self.vim.set_mode, 'invalid-mode')
+
+    def testSetModeSetter(self):
+        self.vim.mode = 'insert'
+        self.vim.send_keys('spam')
+        self.vim.set_mode('normal')
+        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
 
     def testExecutable(self):
         self.assertTrue('vim' in self.vim.executable)

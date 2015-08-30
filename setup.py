@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='headlessvim',
-    version='0.0.1',
+    version='0.0.2',
     description='programmable Vim, no need of +clientserver!',
     long_description=open('README.rst').read(),
     keywords='vim test',
@@ -26,6 +26,7 @@ setup(
     license='MIT',
     packages=['headlessvim'],
     install_requires=['pyte>=0.4.10'],
+    tests_require=['mock'],
     use_2to3=True,
     test_suite='tests',
 )

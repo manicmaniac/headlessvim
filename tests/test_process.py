@@ -29,12 +29,6 @@ class TestProcess(unittest.TestCase):
         self.process.kill()
         self.assertFalse(self.process.is_alive())
 
-    def testCheckReadable(self):
-        time.sleep(0.5)
-        self.assertTrue(self.process.check_readable(0.1))
-        self.process.stdout.read()
-        self.assertFalse(self.process.check_readable(0.1))
-
     def testExecutable(self):
         self.assertTrue('vim' in self.process.executable)
         self.assertTrue(os.path.isabs(self.process.executable))
