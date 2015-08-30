@@ -43,7 +43,7 @@ class TestRuntimePath(unittest.TestCase):
         del self.runtimepath[0]
         self.assertFalse('~/.vim' in self.runtimepath)
         command = 'set {0}'.format(self.string.replace('~/.vim,', ''))
-        self.vim.command.assert_called_with(command)
+        self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)
 
     def testLen(self):
@@ -59,7 +59,7 @@ class TestRuntimePath(unittest.TestCase):
         self.runtimepath[-1] = path
         self.assertEqual(self.runtimepath[-1], path)
         command = 'set {0}'.format(self.string.replace('~/.vim/after', path))
-        self.vim.command.assert_called_with(command)
+        self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)
 
     def testInsert(self):
@@ -67,7 +67,7 @@ class TestRuntimePath(unittest.TestCase):
         self.runtimepath.insert(0, path)
         self.assertEqual(self.runtimepath[0], path)
         command = 'set {0}'.format(self.string.replace('=~/.vim', '=' + path + ',~/.vim'))
-        self.vim.command.assert_called_with(command)
+        self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)
 
     def testAppend(self):
@@ -75,7 +75,7 @@ class TestRuntimePath(unittest.TestCase):
         self.runtimepath.append(path)
         self.assertEqual(self.runtimepath[-1], path)
         command = 'set {0}'.format(self.string + ',' + path)
-        self.vim.command.assert_called_with(command)
+        self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)
 
     def testFormat(self):

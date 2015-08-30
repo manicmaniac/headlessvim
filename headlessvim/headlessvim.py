@@ -52,8 +52,8 @@ class Vim(object):
         self._stream.attach(self._screen)
         self._timeout = timeout
         self._tempfile = tempfile.NamedTemporaryFile()
+        self._runtimepath = None
         self.wait()
-        self.runtimepath = runtimepath.RuntimePath(self)
 
     def __enter__(self):
         return self
@@ -120,20 +120,42 @@ class Vim(object):
         while self._process.check_readable(timeout):
             self._flush()
 
-    def command(self, command):
+    def install_plugin(self, dir, entry_script=None):
+        """
+        Install Vim plugin.
+
+        :param str dir: the root directory contains Vim script
+        :param str entry_script: path to the initializing script
+        """
+        self.runtimepath.append(dir)
+        if entry_script is not None:
+            self.command('runtime! {0}'.format(entry_script), capture=False)
+
+    def command(self, command, capture=True):
         """
         Execute command on Vim.
-        Do not use ``redir`` command. It's already enabled for internal use.
+        Do not use ``redir`` command if ``capture`` is ``True``.
+        It's already enabled for internal use.
 
         :param str command: a command to execute
+        :param bool capture: ``True`` if command's output needs to be
+        captured, else ``False``
         :return: the output of command
         :rtype: str
         """
         self.reset_mode()
-        self.send_keys(':redir! > {0}\n'.format(self._tempfile.name))
+        if capture:
+            self.command('redir! > {0}'.format(self._tempfile.name), capture=False)
         self.send_keys(':{0}\n'.format(command))
-        self.send_keys(':redir END\n')
-        return self._tempfile.read().strip('\n')
+        if capture:
+            self.command('redir END', capture=False)
+            self._tempfile.seek(0)
+            return self._tempfile.read().strip('\n')
+
+    def clear_command_window(self):
+        self.reset_mode()
+        self.send_keys('i')
+        self.reset_mode()
 
     def echo(self, expr):
         """
@@ -200,6 +222,12 @@ class Vim(object):
         Seconds to wait I/O.
         """
         self._timeout = timeout
+
+    @property
+    def runtimepath(self):
+        if self._runtimepath is None:
+            self._runtimepath = runtimepath.RuntimePath(self)
+        return self._runtimepath
 
     def _flush(self):
         buf = self._process.stdout.read()

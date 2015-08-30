@@ -9,6 +9,7 @@ class RuntimePath(collections.MutableSequence):
     def __init__(self, vim):
         self._ref = weakref.ref(vim)
         self._list = self.parse(vim.command('set runtimepath'))
+        vim.clear_command_window()
 
     def __str__(self):
         return self.format(self._list)
@@ -47,4 +48,4 @@ class RuntimePath(collections.MutableSequence):
     def _sync(self):
         vim = self._ref()
         if vim:
-            vim.command('set {0}'.format(str(self)))
+            vim.command('set {0}'.format(str(self)), capture=False)
