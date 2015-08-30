@@ -31,6 +31,7 @@ class Process(object):
         Terminate this process.
         Use this method rather than ``self.kill``.
         """
+        self._close_stream()
         self._process.terminate()
         self._process.wait()
 
@@ -39,6 +40,7 @@ class Process(object):
         Kill this process.
         Use this only when the process seems to be hanging up.
         """
+        self._close_stream()
         self._process.kill()
         self._process.wait()
 
@@ -103,6 +105,12 @@ class Process(object):
         self._make_nonblock(fd)
         self._stdout = os.fdopen(fd, 'rb')
         self._stdin = os.fdopen(os.dup(fd), 'wb')
+
+    def _close_stream(self):
+        if not self._stdout.closed:
+            self._stdout.close()
+        if not self._stdin.closed:
+            self._stdin.close()
 
     def _make_nonblock(self, fd):
         fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
