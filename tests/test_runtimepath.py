@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 try:
     import unittest.mock as mock
 except ImportError:
@@ -39,9 +42,9 @@ class TestRuntimePath(unittest.TestCase):
         self.assertEqual(repr(self.runtimepath), repr(self.list))
 
     def testDel(self):
-        self.assertTrue('~/.vim' in self.runtimepath)
+        self.assertIn('~/.vim', self.runtimepath)
         del self.runtimepath[0]
-        self.assertFalse('~/.vim' in self.runtimepath)
+        self.assertNotIn('~/.vim', self.runtimepath)
         command = 'set {0}'.format(self.string.replace('~/.vim,', ''))
         self.vim.command.assert_called_with(command, capture=False)
         self.assertEqual(self.vim.command.call_count, 2)

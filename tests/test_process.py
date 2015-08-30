@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from headlessvim.process import Process
 
@@ -29,7 +32,7 @@ class TestProcess(unittest.TestCase):
         self.assertFalse(self.process.is_alive())
 
     def testExecutable(self):
-        self.assertTrue('vim' in self.process.executable)
+        self.assertIn('vim', self.process.executable)
         self.assertTrue(os.path.isabs(self.process.executable))
 
     def testArgs(self):
