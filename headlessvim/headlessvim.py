@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import tempfile
 import pyte
 from . import process
 from . import arguments
@@ -49,6 +50,7 @@ class Vim(object):
         self._stream = pyte.Stream()
         self._stream.attach(self._screen)
         self._timeout = timeout
+        self._tempfile = tempfile.NamedTemporaryFile()
         self.wait()
 
     def __enter__(self):
@@ -62,6 +64,7 @@ class Vim(object):
         """
         Disconnect and close Vim.
         """
+        self._tempfile.close()
         self._process.terminate()
         if self._process.is_alive():
             self._process.kill()
@@ -92,16 +95,6 @@ class Vim(object):
         """
         return self._screen.display
 
-    def display_command_window(self):
-        """
-        Shows the command line window of Vim.
-
-        :return: string in command line window
-        :rtype: str
-        """
-        last_line = self.display_lines()[-1]
-        return last_line.rstrip()
-
     def send_keys(self, keys, wait=True):
         """
         Send a raw key sequence to Vim.
@@ -128,11 +121,17 @@ class Vim(object):
     def command(self, command):
         """
         Execute command on Vim.
+        Do not use ``redir`` command. It's already enabled for internal use.
 
         :param str command: a command to execute
+        :return: the output of command
+        :rtype: str
         """
         self.reset_mode()
+        self.send_keys(':redir! > {0}\n'.format(self._tempfile.name))
         self.send_keys(':{0}\n'.format(command))
+        self.send_keys(':redir END\n')
+        return self._tempfile.read().strip('\n')
 
     def echo(self, expr):
         """
@@ -142,8 +141,7 @@ class Vim(object):
         :return: the result of ``:echo`` command
         :rtype: str
         """
-        self.command('echo {0}'.format(expr))
-        return self.display_command_window()
+        return self.command('echo {0}'.format(expr))
 
     def reset_mode(self):
         """

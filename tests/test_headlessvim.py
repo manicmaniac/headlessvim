@@ -38,19 +38,15 @@ class TestHeadlessVim(unittest.TestCase):
         self.assertTrue(any('VIM - Vi IMproved' in line for line in lines))
         self.assertEqual(lines[-1].strip(), '')
 
-    def testDisplayCommandWindow(self):
-        self.assertEqual(self.vim.display_command_window(), '')
-
     def testSendKeys(self):
         self.vim.send_keys('ispam\033')
         self.assertTrue('spam' in self.vim.display_lines()[0])
 
     def testCommand(self):
-        self.vim.command('echo "ham"')
-        self.assertEqual(self.vim.display_command_window().rstrip(), 'ham')
+        self.assertEqual(self.vim.command('echo "ham"'), 'ham')
 
     def testEcho(self):
-        self.assertTrue(self.vim.echo('"egg"'), 'egg')
+        self.assertEqual(self.vim.echo('"egg"'), 'egg')
 
     def testExecutable(self):
         self.assertTrue('vim' in self.vim.executable)
