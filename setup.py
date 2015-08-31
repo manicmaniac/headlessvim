@@ -41,9 +41,8 @@ setup(
     author_email='rito.0305@gmail.com',
     license='MIT',
     packages=['headlessvim'],
-    install_requires=['pyte>=0.4.10'],
+    install_requires=['pyte>=0.4.10', 'six>=1.9.0'],
     tests_require=tests_require(),
     setup_requires=['flake8'],
-    use_2to3=True,
     test_suite='tests',
 )
