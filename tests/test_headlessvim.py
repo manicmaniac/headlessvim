@@ -43,6 +43,13 @@ def test_open(vim):
     assert isinstance(vim, Vim)
 
 
+def test_context_manager():
+    with open() as vim:
+        assert isinstance(vim, Vim)
+        assert vim.is_alive()
+    assert not vim.is_alive()
+
+
 def test_is_alive(unterminated_vim):
     vim = unterminated_vim
     assert vim.is_alive()
