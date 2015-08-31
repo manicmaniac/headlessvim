@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import platform
+import sys
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
 
-def tests_require():
-    res = []
-    version = platform.python_version()
-    if version < '2.7.0':
-        res.append('unittest2')
-    if version < '3.3.0':
-        res.append('mock')
-    return res
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['-v', self.distribution.test_suite]
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        sys.exit(pytest.main(self.test_args))
 
 
 def read(path):
@@ -42,7 +44,8 @@ setup(
     license='MIT',
     packages=['headlessvim'],
     install_requires=['pyte>=0.4.10', 'six>=1.9.0'],
-    tests_require=tests_require(),
+    tests_require=['pytest', 'mock'],
     setup_requires=['flake8'],
     test_suite='tests',
+    cmdclass={'test': PyTest},
 )

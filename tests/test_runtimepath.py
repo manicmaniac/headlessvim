@@ -1,89 +1,100 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import pytest
+import mock
 from headlessvim.runtimepath import RuntimePath
 
 
-class TestRuntimePath(unittest.TestCase):
-    def setUp(self):
-        self.string = '''runtimepath=~/.vim,
-                         /var/lib/vim/addons,
-                         /usr/share/vimfiles,
-                         /usr/share/vim/vim74,
-                         /usr/share/vim/vimfiles/after,
-                         /var/lib/vim/addons/after,
-                         ~/.vim/after'''.replace(' ', '').replace('\n', '')
-        self.list = [
-            '~/.vim',
+@pytest.fixture
+def list(request):
+    return ['~/.vim',
             '/var/lib/vim/addons',
             '/usr/share/vimfiles',
             '/usr/share/vim/vim74',
             '/usr/share/vim/vimfiles/after',
             '/var/lib/vim/addons/after',
-            '~/.vim/after',
-        ]
-        self.len = 7
-        self.vim = mock.MagicMock()
-        self.vim.command.return_value = self.string
-        self.runtimepath = RuntimePath(self.vim)
+            '~/.vim/after']
 
-    def testStr(self):
-        self.assertEqual(str(self.runtimepath), self.string)
 
-    def testRepr(self):
-        self.assertEqual(repr(self.runtimepath), repr(self.list))
+@pytest.fixture
+def string(request):
+    return '''runtimepath=~/.vim,
+              /var/lib/vim/addons,
+              /usr/share/vimfiles,
+              /usr/share/vim/vim74,
+              /usr/share/vim/vimfiles/after,
+              /var/lib/vim/addons/after,
+              ~/.vim/after'''.replace(' ', '').replace('\n', '')
 
-    def testDel(self):
-        self.assertIn('~/.vim', self.runtimepath)
-        del self.runtimepath[0]
-        self.assertNotIn('~/.vim', self.runtimepath)
-        command = 'set {0}'.format(self.string.replace('~/.vim,', ''))
-        self.vim.command.assert_called_with(command, capture=False)
-        self.assertEqual(self.vim.command.call_count, 2)
 
-    def testLen(self):
-        self.assertEqual(len(self.runtimepath), self.len)
+@pytest.fixture
+def vim(request, string):
+    vim = mock.MagicMock()
+    vim.command.return_value = string
+    return vim
 
-    def testGetItem(self):
-        self.assertEqual(self.runtimepath[0], self.list[0])
-        self.assertEqual(self.runtimepath[1], self.list[1])
-        self.assertEqual(self.runtimepath[-1], self.list[-1])
 
-    def testSetItem(self):
-        path = '/usr/local/share/vimfiles'
-        self.runtimepath[-1] = path
-        self.assertEqual(self.runtimepath[-1], path)
-        command = 'set {0}'.format(self.string.replace('~/.vim/after', path))
-        self.vim.command.assert_called_with(command, capture=False)
-        self.assertEqual(self.vim.command.call_count, 2)
+@pytest.fixture
+def runtimepath(request, vim):
+    return RuntimePath(vim)
 
-    def testInsert(self):
-        path = '/usr/local/share/vimfiles'
-        self.runtimepath.insert(0, path)
-        self.assertEqual(self.runtimepath[0], path)
-        command = 'set {0}'.format(self.string.replace(
-            '=~/.vim', '=' + path + ',~/.vim'))
-        self.vim.command.assert_called_with(command, capture=False)
-        self.assertEqual(self.vim.command.call_count, 2)
 
-    def testAppend(self):
-        path = '/usr/local/share/vimfiles'
-        self.runtimepath.append(path)
-        self.assertEqual(self.runtimepath[-1], path)
-        command = 'set {0}'.format(self.string + ',' + path)
-        self.vim.command.assert_called_with(command, capture=False)
-        self.assertEqual(self.vim.command.call_count, 2)
+@pytest.fixture
+def path(request):
+    return '/usr/local/share/vimfiles'
 
-    def testFormat(self):
-        self.assertEqual(self.runtimepath.format(self.list), self.string)
 
-    def testParse(self):
-        self.assertEqual(self.runtimepath.parse(self.string), self.list)
+def test_str(runtimepath, string):
+    assert str(runtimepath) == string
+
+
+def test_repr(runtimepath, list):
+    assert repr(runtimepath) == repr(list)
+
+
+def test_del(runtimepath, string, vim):
+    assert '~/.vim' in runtimepath
+    del runtimepath[0]
+    assert '~/.vim' not in runtimepath
+    command = 'set {0}'.format(string.replace('~/.vim,', ''))
+    vim.command.assert_called_with(command, False)
+    assert vim.command.call_count == 2
+
+
+@pytest.mark.parametrize('index', range(7))
+def test_get_item(runtimepath, list, index):
+    assert runtimepath[index] == list[index]
+
+
+def test_set_item(runtimepath, path, string, vim):
+    runtimepath[-1] = path
+    assert runtimepath[-1] == path
+    command = 'set {0}'.format(string.replace('~/.vim/after', path))
+    vim.command.assert_called_with(command, False)
+    assert vim.command.call_count == 2
+
+
+def test_insert(runtimepath, path, string, vim):
+    runtimepath.insert(0, path)
+    assert runtimepath[0] == path
+    command = 'set {0}'.format(
+        string.replace('=~/.vim', '=' + path + ',~/.vim'))
+    vim.command.assert_called_with(command, False)
+    assert vim.command.call_count == 2
+
+
+def test_append(runtimepath, path, string, vim):
+    runtimepath.append(path)
+    assert runtimepath[-1] == path
+    command = 'set {0}'.format(string + ',' + path)
+    vim.command.assert_called_with(command, False)
+    assert vim.command.call_count == 2
+
+
+def test_format(runtimepath, list, string):
+    assert runtimepath.format(list) == string
+
+
+def test_parse(runtimepath, list, string):
+    assert runtimepath.parse(string) == list
