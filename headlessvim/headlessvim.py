@@ -217,15 +217,15 @@ class Vim(object):
         """
         (lines, columns) tuple of a screen connected to Vim.
         """
-        # somehow pyte swaps `size` tuple
-        return (self._screen.size[1], self._screen.size[0])
+        return self._swap(self._screen.size)
 
     @screen_size.setter
     def screen_size(self, size):
         """
         (lines, columns) tuple of a screen connected to Vim.
         """
-        self._screen.resize(*size)
+        if self.screen_size != size:
+            self._screen.resize(*self._swap(size))
 
     @property
     def timeout(self):
@@ -250,3 +250,6 @@ class Vim(object):
     def _flush(self):
         buf = self._process.stdout.read()
         self._stream.feed(buf.decode(self._encoding))
+
+    def _swap(self, size):
+        return (size[1], size[0])

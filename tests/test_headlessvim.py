@@ -124,5 +124,12 @@ def test_screen_size(vim):
     assert vim.screen_size == (80, 24)
 
 
+def test_screen_size_setter(vim):
+    screen_size = (120, 32)
+    vim.screen_size = screen_size
+    assert vim.screen_size == screen_size
+    assert all(len(line) == screen_size[0] for line in vim.display_lines())
+
+
 def test_timeout(vim):
     assert 0 < vim.timeout < 1
