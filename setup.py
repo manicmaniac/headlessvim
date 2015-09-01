@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import ast
 import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -17,6 +18,18 @@ class PyTest(TestCommand):
         sys.exit(pytest.main(self.test_args))
 
 
+def version_from(path):
+    with open(path) as f:
+        source = f.read()
+    module = ast.parse(source)
+    for node in ast.walk(module):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if target.id == '__version__':
+                    assert isinstance(node.value, ast.Str)
+                    return node.value.s
+
+
 def read(path):
     with open(path) as f:
         return f.read()
@@ -24,7 +37,7 @@ def read(path):
 
 setup(
     name='headlessvim',
-    version='0.0.3',
+    version=version_from('headlessvim/__init__.py'),
     description='programmable Vim, no need of +clientserver!',
     long_description=read('README.rst'),
     keywords='vim test',
