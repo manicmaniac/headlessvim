@@ -32,7 +32,7 @@ class Vim(object):
                  env=None,
                  encoding='utf-8',
                  size=(80, 24),
-                 timeout=0.1):
+                 timeout=0.25):
         """
         :param str executable: command name to execute Vim
         :param args: arguments to execute Vim
