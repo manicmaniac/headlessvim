@@ -3,6 +3,7 @@
 
 import pytest
 import os
+import mock
 from headlessvim.headlessvim import Vim, open
 
 
@@ -39,8 +40,24 @@ def plugin_entry_script(request):
     return 'plugin/spam.vim'
 
 
+@pytest.fixture
+def zombie_vim(request, unterminated_vim):
+    vim = unterminated_vim
+    vim.close()
+    vim._process = mock.MagicMock()
+    vim._process.is_alive.return_value = True
+    return vim
+
+
 def test_open(vim):
     assert isinstance(vim, Vim)
+
+
+def test_close_zombie(zombie_vim):
+    vim = zombie_vim
+    vim.close()
+    vim._process.terminate.assert_called_once_with()
+    vim._process.kill.assert_called_once_with()
 
 
 def test_context_manager():
@@ -100,6 +117,13 @@ def test_set_mode(vim):
     vim.send_keys('spam')
     vim.set_mode('normal')
     assert vim.display_lines()[0].strip() == 'spam'
+    vim.set_mode('visual')
+    vim.send_keys('0yP')
+    assert vim.display_lines()[0].strip() == 'spamspam'
+    vim.send_keys('yyp')
+    vim.set_mode('visual-block')
+    vim.send_keys('kIspam')
+    assert vim.display_lines()[0].strip() == 'spamspamspam'
 
 
 def test_set_mode_invalid(vim):
@@ -140,3 +164,8 @@ def test_screen_size_setter(vim):
 
 def test_timeout(vim):
     assert 0 < vim.timeout < 1
+
+
+def test_timeout_setter(vim):
+    vim.timeout = 10
+    assert vim.timeout == 10
