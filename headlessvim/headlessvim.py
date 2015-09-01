@@ -144,7 +144,7 @@ class Vim(object):
 
         :param str command: a command to execute
         :param bool capture: ``True`` if command's output needs to be
-        captured, else ``False``
+                             captured, else ``False``
         :return: the output of command
         :rtype: str
         """

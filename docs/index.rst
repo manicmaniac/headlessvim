@@ -6,12 +6,23 @@
 Welcome to headlessvim's documentation!
 =======================================
 
+.. code:: python
+
+    >>> import headlessvim
+    >>> with headlessvim.open() as vim:
+    ...     vim.echo('"welcome!"') # make sure to quote bare words
+    ...
+    'welcome!'
+
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   headlessvim
+    install
+    tutorial
+    headlessvim
+    license
 
 
 Indices and tables
@@ -20,4 +31,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
