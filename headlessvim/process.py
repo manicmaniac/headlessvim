@@ -5,6 +5,7 @@
 .. note:: This module is not designed to be used by user.
 """
 
+import contextlib
 import distutils.spawn
 import fcntl
 import os
@@ -35,18 +36,16 @@ class Process(object):
         Terminate this process.
         Use this method rather than ``self.kill``.
         """
-        self._close_stream()
-        self._process.terminate()
-        self._process.wait()
+        with self._close():
+            self._process.terminate()
 
     def kill(self):
         """
         Kill this process.
         Use this only when the process seems to be hanging up.
         """
-        self._close_stream()
-        self._process.kill()
-        self._process.wait()
+        with self._close():
+            self._process.kill()
 
     def check_readable(self, timeout):
         """
@@ -122,6 +121,12 @@ class Process(object):
             self._stdout.close()
         if not self._stdin.closed:
             self._stdin.close()
+
+    @contextlib.contextmanager
+    def _close(self):
+        self._close_stream()
+        yield
+        self._process.wait()
 
     def _make_nonblock(self, fd):
         fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
