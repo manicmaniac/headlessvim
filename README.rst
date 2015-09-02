@@ -1,4 +1,3 @@
-###########
 headlessvim
 ###########
 
@@ -20,7 +19,6 @@ headlessvim
     :target: https://pypi.python.org/pypi/headlessvim
     :alt: Python Versions
 
-============
 Introduction
 ============
 
@@ -31,7 +29,6 @@ The most distinctive characteristic is,
 
 Also, ``headlessvim`` is fully compatible among Python 2.6, 2.7, 3.2, 3.3, 3.4.
 
-=======
 Install
 =======
 
@@ -47,7 +44,6 @@ The good old ``setup.py``
 
     python setup.py install
 
-========
 Examples
 ========
 
@@ -86,7 +82,6 @@ Integrating to ``unittest``:
             res = self.vim.echo('"ham egg"')
             self.assertEqual(res, 'ham egg')
 
-=======
 Testing
 =======
 
@@ -99,7 +94,6 @@ Execute:
     python setup.py test
 
 
-=======
 License
 =======
 
