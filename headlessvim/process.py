@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+"""
+.. note:: This module is not designed to be used by user.
+"""
+
 import distutils.spawn
 import fcntl
 import os
@@ -11,15 +15,15 @@ import subprocess
 
 class Process(object):
     """
-    A class representing a background Vim process.
+    A class representing a background *Vim* process.
     """
     def __init__(self, executable, args, env):
         """
-        :param str executable: command name to execute Vim
-        :param args: arguments to execute Vim
-        :type args: None or list or str
-        :param env: environment variables to execute Vim
-        :type env: None or dict
+        :param str executable: command name to execute *Vim*
+        :param args: arguments to execute *Vim*
+        :type args: None or string or list of string
+        :param env: environment variables to execute *Vim*
+        :type env: None or dict of (string, string)
         """
         self._executable = distutils.spawn.find_executable(executable)
         self._args = args
@@ -50,6 +54,7 @@ class Process(object):
 
         :param float timeout: seconds to wait I/O
         :return: True if readable, else False
+        :rtype: boolean
         """
         rlist, wlist, xlist = select.select([self._stdout], [], [], timeout)
         return bool(len(rlist))
@@ -59,35 +64,40 @@ class Process(object):
         Check if the process is alive.
 
         :return: True if the process is alive, else False
+        :rtype: boolean
         """
         return self._process.poll() is None
 
     @property
     def executable(self):
         """
-        The absolute path to the process.
+        :return: the absolute path to the process.
+        :rtype: strIng
         """
         return self._executable
 
     @property
     def args(self):
         """
-        Arguments for the process.
+        :return: launch arguments of the process.
+        :rtype: string or list of string
         """
         return self._args
 
     @property
     def stdin(self):
         """
-        File-like object representing the standard input of the process
+        :return: file-like object representing the standard input of the process
+        :rtype: flie-like object
         """
         return self._stdin
 
     @property
     def stdout(self):
         """
-        Non blocking File-like object
-        representing the standard output of the process
+        :return: non blocking file-like object
+                 representing the standard output of the process
+        :rtype: file-like object
         """
         return self._stdout
 

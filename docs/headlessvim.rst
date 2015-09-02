@@ -1,11 +1,23 @@
 headlessvim package
 ===================
 
+Module contents
+---------------
+
+headlessvim module
+^^^^^^^^^^^^^^^^^^
+
+.. automodule:: headlessvim
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Submodules
 ----------
 
 headlessvim.arguments module
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: headlessvim.arguments
     :members:
@@ -13,7 +25,7 @@ headlessvim.arguments module
     :show-inheritance:
 
 headlessvim.headlessvim module
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: headlessvim.headlessvim
     :members:
@@ -21,18 +33,9 @@ headlessvim.headlessvim module
     :show-inheritance:
 
 headlessvim.process module
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: headlessvim.process
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: headlessvim
     :members:
     :undoc-members:
     :show-inheritance:

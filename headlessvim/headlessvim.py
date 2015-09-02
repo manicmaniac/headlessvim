@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+"""
+.. note:: All the public interfaces of this module is exported to
+          the top level module of ``headlessvim`` package.
+"""
+
 import tempfile
 import pyte
 from . import process
@@ -13,7 +18,7 @@ __all__ = ['Vim', 'open']
 
 def open(**kwargs):
     """
-    A factory function to open new Vim object.
+    A factory function to open new ``Vim`` object.
     ``with`` statement can be used for this.
     """
     return Vim(**kwargs)
@@ -21,8 +26,13 @@ def open(**kwargs):
 
 class Vim(object):
     """
-    A class representing a headless Vim.
+    A class representing a headless *Vim*.
     Do not instantiate this directly, instead use ``open``.
+
+    ``Vim`` object behaves as ``contextmanager``.
+
+    :cvar default_args: the default launch argument of *Vim*
+    :vartype default_args: string or list of string
     """
     default_args = '-N -i NONE -n -u NONE'
 
@@ -34,13 +44,14 @@ class Vim(object):
                  size=(80, 24),
                  timeout=0.25):
         """
-        :param str executable: command name to execute Vim
-        :param args: arguments to execute Vim
-        :type args: None or list or str
-        :param env: environment variables to execute Vim
-        :type env: None or dict
-        :param str encoding: internal encoding of Vim
-        :param tuple size: (lines, columns) of a screen connected to Vim
+        :param string executable: command name to execute *Vim*
+        :param args: arguments to execute *Vim*
+        :type args: None or string or list of string
+        :param env: environment variables to execute *Vim*
+        :type env: None or dict of (string, string)
+        :param string encoding: internal encoding of *Vim*
+        :param size: (lines, columns) of a screen connected to *Vim*
+        :type size: (int, int)
         :param float timeout: seconds to wait I/O
         """
         parser = arguments.Parser(self.default_args)
@@ -69,7 +80,7 @@ class Vim(object):
 
     def close(self):
         """
-        Disconnect and close Vim.
+        Disconnect and close *Vim*.
         """
         self._tempfile.close()
         self._process.terminate()
@@ -78,18 +89,41 @@ class Vim(object):
 
     def is_alive(self):
         """
-        Check if the background Vim process is alive.
+        Check if the background *Vim* process is alive.
 
         :return: True if the process is alive, else False
+        :rtype: boolean
         """
         return self._process.is_alive()
 
     def display(self):
         """
-        Shows the terminal screen connecting to Vim.
+        Shows the terminal screen connecting to *Vim*.
+
+        Example:
+
+        >>> with headlessvim.open(size=(64, 16)) as vim:
+        ...     print(vim.display())
+        ...
+        ~
+        ~                          VIM - Vi IMproved
+        ~
+        ~                           version 7.4.52
+        ~                      by Bram Moolenaar et al.
+        ~
+        ~             Vim is open source and freely distributable
+        ~
+        ~                      Sponsor Vim development!
+        ~           type  :help sponsor<Enter>    for information
+        ~
+        ~           type  :q<Enter>               to exit
+        ~           type  :help<Enter>  or  <F1>  for on-line help
+        ~           type  :help version7<Enter>   for version info
+        ~
+        ~
 
         :return: screen as a text
-        :rtype: str
+        :rtype: string
         """
         return '\n'.join(self.display_lines())
 
@@ -97,17 +131,31 @@ class Vim(object):
         """
         Shows the terminal screen splitted by newlines.
 
+        Almost equals to ``self.display().splitlines()``
+
         :return: screen as a list of strings
-        :rtype: list
+        :rtype: list of string
         """
         return self._screen.display
 
     def send_keys(self, keys, wait=True):
         """
-        Send a raw key sequence to Vim.
+        Send a raw key sequence to *Vim*.
 
-        :param str keys: key sequence to send
-        :param bool wait: whether if wait a response
+        .. note:: *Vim* style key sequence notation (like ``<Esc>``)
+                  is not recognized.
+                  Use escaped characters (like ``'\033'``) instead.
+
+        Example:
+
+        >>> with headlessvim.open() as vim:
+        ...     vim.send_keys('ispam\033')
+        ...     vim.display_lines()[0].strip()
+        ...
+        'spam'
+
+        :param strgin keys: key sequence to send
+        :param boolean wait: whether if wait a response
         """
         self._process.stdin.write(bytearray(keys, self._encoding))
         self._process.stdin.flush()
@@ -117,6 +165,7 @@ class Vim(object):
     def wait(self, timeout=None):
         """
         Wait for response until timeout.
+        If timeout is specified to None, ``self.timeout`` is used.
 
         :param float timeout: seconds to wait I/O
         """
@@ -127,10 +176,10 @@ class Vim(object):
 
     def install_plugin(self, dir, entry_script=None):
         """
-        Install Vim plugin.
+        Install *Vim* plugin.
 
-        :param str dir: the root directory contains Vim script
-        :param str entry_script: path to the initializing script
+        :param string dir: the root directory contains *Vim* script
+        :param string entry_script: path to the initializing script
         """
         self.runtimepath.append(dir)
         if entry_script is not None:
@@ -138,15 +187,30 @@ class Vim(object):
 
     def command(self, command, capture=True):
         """
-        Execute command on Vim.
-        Do not use ``redir`` command if ``capture`` is ``True``.
-        It's already enabled for internal use.
+        Execute command on *Vim*.
+        .. warning:: Do not use ``redir`` command if ``capture`` is ``True``.
+                     It's already enabled for internal use.
 
-        :param str command: a command to execute
-        :param bool capture: ``True`` if command's output needs to be
-                             captured, else ``False``
-        :return: the output of command
-        :rtype: str
+        If ``capture`` argument is set ``False``,
+        the command execution becomes slightly faster.
+
+        Example:
+
+        >>> with headlessvim.open() as vim:
+        ...     vim.command('echo 0')
+        ...
+        '0'
+        >>> with headlessvim.open() as vim:
+        ...     vim.command('let g:spam = "ham"', False)
+        ...     vim.echo('g:spam')
+        ...
+        'ham'
+
+        :param string command: a command to execute
+        :param boolean capture: ``True`` if command's output needs to be
+                                captured, else ``False``
+        :return: the output of the given command
+        :rtype: string
         """
         if capture:
             self.command('redir! > {0}'.format(self._tempfile.name), False)
@@ -159,22 +223,51 @@ class Vim(object):
 
     def echo(self, expr):
         """
-        Execute ``:echo`` command on Vim.
+        Execute ``:echo`` command on *Vim*.
 
-        :param str expr: a expr to ``:echo``
+        .. note:: The given string is passed to *Vim* as it is.
+                  Make sure to quote bare words.
+
+        Example:
+
+        >>> with headlessvim.open() as vim:
+        ...     vim.echo('0')
+        ...
+        '0'
+        >>> with headlessvim.open() as vim:
+        ...     vim.echo('"spam"')
+        ...
+        'spam'
+
+        :param string expr: a expr to ``:echo``
         :return: the result of ``:echo`` command
-        :rtype: str
+        :rtype: string
         """
         return self.command('echo {0}'.format(expr))
 
     def set_mode(self, mode):
         """
-        Set Vim mode to ``mode``.
-        Supported modes: ``normal``, ``insert``, ``command``,
-        ``visual``, ``visual-block``
-        Raises ValueError if ``mode`` is not supported.
+        Set *Vim* mode to ``mode``.
+        Supported modes:
 
-        :param str mode: Vim mode to set
+        * ``normal``
+        * ``insert``
+        * ``command``
+        * ``visual``
+        * ``visual-block``
+
+
+        This method behave as setter-only property.
+
+        Example:
+
+        >>> with headlessvim.open() as vim:
+        ...     vim.set_mode('insert')
+        ...     vim.mode = 'normal' # also accessible as property
+        ...
+
+        :param string mode: *Vim* mode to set
+        :raises ValueError: if ``mode`` is not supported
         """
         keys = '\033\033'
         if mode == 'normal':
@@ -194,35 +287,40 @@ class Vim(object):
     @property
     def executable(self):
         """
-        The absolute path to the process.
+        :return: the absolute path to the process.
+        :rtype: string
         """
         return self._process.executable
 
     @property
     def args(self):
         """
-        Arguments for the process.
+        :return: arguments for the process.
+        :rtype: list of string
         """
         return self._process.args
 
     @property
     def encoding(self):
         """
-        Internal encoding of Vim.
+        :return: internal encoding of *Vim*.
+        :rtype: string
         """
         return self._encoding
 
     @property
     def screen_size(self):
         """
-        (lines, columns) tuple of a screen connected to Vim.
+        :return: (lines, columns) tuple of a screen connected to *Vim*.
+        :rtype: (int, int)
         """
         return self._swap(self._screen.size)
 
     @screen_size.setter
     def screen_size(self, size):
         """
-        (lines, columns) tuple of a screen connected to Vim.
+        :param size: (lines, columns) tuple of a screen connected to *Vim*.
+        :type size: (int, int)
         """
         if self.screen_size != size:
             self._screen.resize(*self._swap(size))
@@ -230,19 +328,24 @@ class Vim(object):
     @property
     def timeout(self):
         """
-        Seconds to wait I/O.
+        :return: seconds to wait I/O.
+        :rtype: float
         """
         return self._timeout
 
     @timeout.setter
     def timeout(self, timeout):
         """
-        Seconds to wait I/O.
+        :param float timeout: seconds to wait I/O.
         """
         self._timeout = timeout
 
     @property
     def runtimepath(self):
+        """
+        :return: runtime path of *Vim*
+        :rtype: runtimepath.RuntimePath
+        """
         if self._runtimepath is None:
             self._runtimepath = runtimepath.RuntimePath(self)
         return self._runtimepath
