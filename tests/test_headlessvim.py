@@ -74,14 +74,12 @@ def test_is_alive(unterminated_vim):
     assert not vim.is_alive()
 
 
-@pytest.mark.parametrize('text', [
-    'VIM - Vi IMproved',
-    'by Bram Moolenaar et al.',
-    'type  :q<Enter>',
-    'type  :help<Enter>'
-])
-def test_display(vim, text):
-    assert text in vim.display()
+def test_display(vim):
+    display = vim.display()
+    assert 'VIM - Vi IMproved' in display
+    assert 'by Bram Moolenaar et al.' in display
+    assert 'type  :q<Enter>' in display
+    assert 'type  :help<Enter>' in display
 
 
 def test_display_lines(vim):
@@ -102,13 +100,13 @@ def test_install_plugin(vim, plugin_dir, plugin_entry_script):
     assert vim.command('Spam') == 'spam'
 
 
-@pytest.mark.parametrize('message', ['spam', 'ham', 'egg'])
-def test_command(vim, message):
+def test_command(vim):
+    message = 'spam'
     assert vim.command('echo "{0}"'.format(message)) == message
 
 
-@pytest.mark.parametrize('message', ['spam', 'ham', 'egg'])
-def test_echo(vim, message):
+def test_echo(vim):
+    message = 'spam'
     assert vim.echo('"{0}"'.format(message)) == message
 
 
