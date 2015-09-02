@@ -87,7 +87,8 @@ class Process(object):
     @property
     def stdin(self):
         """
-        :return: file-like object representing the standard input of the process
+        :return: file-like object representing the standard input
+                 of the process
         :rtype: flie-like object
         """
         return self._stdin
