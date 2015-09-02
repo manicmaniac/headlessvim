@@ -1,18 +1,33 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import platform
+import ast
+import sys
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
 
-def tests_require():
-    res = []
-    version = platform.python_version()
-    if version < '2.7.0':
-        res.append('unittest2')
-    if version < '3.3.0':
-        res.append('mock')
-    return res
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['-v', self.distribution.test_suite]
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        sys.exit(pytest.main(self.test_args))
+
+
+def version_from(path):
+    with open(path) as f:
+        source = f.read()
+    module = ast.parse(source)
+    for node in ast.walk(module):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if target.id == '__version__':
+                    assert isinstance(node.value, ast.Str)
+                    return node.value.s
 
 
 def read(path):
@@ -22,7 +37,7 @@ def read(path):
 
 setup(
     name='headlessvim',
-    version='0.0.3',
+    version=version_from('headlessvim/__init__.py'),
     description='programmable Vim, no need of +clientserver!',
     long_description=read('README.rst'),
     keywords='vim test',
@@ -41,9 +56,9 @@ setup(
     author_email='rito.0305@gmail.com',
     license='MIT',
     packages=['headlessvim'],
-    install_requires=['pyte>=0.4.10'],
-    tests_require=tests_require(),
+    install_requires=['pyte>=0.4.10', 'six>=1.9.0'],
+    tests_require=['pytest', 'mock'],
     setup_requires=['flake8'],
-    use_2to3=True,
     test_suite='tests',
+    cmdclass={'test': PyTest},
 )

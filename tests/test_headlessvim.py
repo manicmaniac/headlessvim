@@ -1,97 +1,171 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import pytest
 import os
+import mock
 from headlessvim.headlessvim import Vim, open
 
 
-class TestHeadlessVim(unittest.TestCase):
-    def setUp(self):
-        env = dict(os.environ, LANG='C')
-        self.vim = open(env=env)
-        self.skip_close = False
-        fixtures_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
-        self.plugin_dir = os.path.join(
-            fixtures_dir,
-            'spam'
-        )
-        assert os.path.isdir(self.plugin_dir)
-        self.plugin_entry_script = 'plugin/spam.vim'
+@pytest.fixture
+def env(request):
+    return dict(os.environ, LANG='C')
 
-    def tearDown(self):
-        if not self.skip_close:
-            self.vim.close()
 
-    def testOpen(self):
-        self.assertIsInstance(self.vim, Vim)
+@pytest.fixture
+def unterminated_vim(request, env):
+    return open(env=env)
 
-    def testIsAlive(self):
-        self.skip_close = True
-        self.assertTrue(self.vim.is_alive())
-        self.vim.close()
-        self.assertFalse(self.vim.is_alive())
 
-    def testDisplay(self):
-        display = self.vim.display()
-        self.assertIn('VIM - Vi IMproved', display)
-        self.assertIn('by Bram Moolenaar et al.', display)
-        self.assertIn('type  :q<Enter>', display)
-        self.assertIn('type  :help<Enter>', display)
+@pytest.yield_fixture
+def vim(request, unterminated_vim):
+    vim = unterminated_vim
+    yield vim
+    vim.close()
 
-    def testDisplayLines(self):
-        lines = self.vim.display_lines()
-        self.assertTrue(all(len(line) == 80 for line in lines))
-        self.assertTrue(any('VIM - Vi IMproved' in line for line in lines))
-        self.assertEqual(lines[-1].strip(), '')
 
-    def testSendKeys(self):
-        self.vim.send_keys('ispam\033')
-        self.assertIn('spam', self.vim.display_lines()[0])
+@pytest.fixture
+def fixtures(request):
+    here = os.path.dirname(__file__)
+    return os.path.join(here, 'fixtures')
 
-    def testInstallPlugin(self):
-        self.vim.install_plugin(self.plugin_dir, self.plugin_entry_script)
-        self.assertIn(self.plugin_dir, self.vim.runtimepath)
-        self.assertEqual(self.vim.command('Spam'), 'spam')
 
-    def testCommand(self):
-        self.assertEqual(self.vim.command('echo "ham"'), 'ham')
-        self.assertEqual(self.vim.command('echo "egg"'), 'egg')
+@pytest.fixture
+def plugin_dir(request, fixtures):
+    return os.path.join(fixtures, 'spam')
 
-    def testEcho(self):
-        self.assertEqual(self.vim.echo('"ham"'), 'ham')
-        self.assertEqual(self.vim.echo('"egg"'), 'egg')
 
-    def testSetMode(self):
-        self.vim.set_mode('insert')
-        self.vim.send_keys('spam')
-        self.vim.set_mode('normal')
-        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
+@pytest.fixture
+def plugin_entry_script(request):
+    return 'plugin/spam.vim'
 
-    def testSetModeInvalid(self):
-        self.assertRaises(ValueError, self.vim.set_mode, 'invalid-mode')
 
-    def testSetModeSetter(self):
-        self.vim.mode = 'insert'
-        self.vim.send_keys('spam')
-        self.vim.set_mode('normal')
-        self.assertEqual(self.vim.display_lines()[0].strip(), 'spam')
+@pytest.fixture
+def zombie_vim(request, unterminated_vim):
+    vim = unterminated_vim
+    vim.close()
+    vim._process = mock.MagicMock()
+    vim._process.is_alive.return_value = True
+    return vim
 
-    def testExecutable(self):
-        self.assertIn('vim', self.vim.executable)
-        self.assertTrue(os.path.isabs(self.vim.executable))
 
-    def testArgs(self):
-        self.assertIn('-u', self.vim.args)
+def test_open(vim):
+    assert isinstance(vim, Vim)
 
-    def testEncoding(self):
-        self.assertEqual(self.vim.encoding.lower(), 'utf-8')
 
-    def testSize(self):
-        self.assertEqual(self.vim.screen_size, (80, 24))
+def test_close_zombie(zombie_vim):
+    vim = zombie_vim
+    vim.close()
+    vim._process.terminate.assert_called_once_with()
+    vim._process.kill.assert_called_once_with()
 
-    def testTimeout(self):
-        self.assertEqual(self.vim.timeout, 0.1)
+
+def test_context_manager():
+    with open() as vim:
+        assert isinstance(vim, Vim)
+        assert vim.is_alive()
+    assert not vim.is_alive()
+
+
+def test_is_alive(unterminated_vim):
+    vim = unterminated_vim
+    assert vim.is_alive()
+    vim.close()
+    assert not vim.is_alive()
+
+
+@pytest.mark.parametrize('text', [
+    'VIM - Vi IMproved',
+    'by Bram Moolenaar et al.',
+    'type  :q<Enter>',
+    'type  :help<Enter>'
+])
+def test_display(vim, text):
+    assert text in vim.display()
+
+
+def test_display_lines(vim):
+    lines = vim.display_lines()
+    assert all(len(line) == 80 for line in lines)
+    assert any('VIM - Vi IMproved' in line for line in lines)
+    assert lines[-1].strip() == ''
+
+
+def test_send_keys(vim):
+    vim.send_keys('ispam\033')
+    assert 'spam' in vim.display_lines()[0]
+
+
+def test_install_plugin(vim, plugin_dir, plugin_entry_script):
+    vim.install_plugin(plugin_dir, plugin_entry_script)
+    assert plugin_dir in vim.runtimepath
+    assert vim.command('Spam') == 'spam'
+
+
+@pytest.mark.parametrize('message', ['spam', 'ham', 'egg'])
+def test_command(vim, message):
+    assert vim.command('echo "{0}"'.format(message)) == message
+
+
+@pytest.mark.parametrize('message', ['spam', 'ham', 'egg'])
+def test_echo(vim, message):
+    assert vim.echo('"{0}"'.format(message)) == message
+
+
+def test_set_mode(vim):
+    vim.set_mode('insert')
+    vim.send_keys('spam')
+    vim.set_mode('normal')
+    assert vim.display_lines()[0].strip() == 'spam'
+    vim.set_mode('visual')
+    vim.send_keys('0yP')
+    assert vim.display_lines()[0].strip() == 'spamspam'
+    vim.send_keys('yyp')
+    vim.set_mode('visual-block')
+    vim.send_keys('kIspam')
+    assert vim.display_lines()[0].strip() == 'spamspamspam'
+
+
+def test_set_mode_invalid(vim):
+    with pytest.raises(ValueError):
+        vim.set_mode('invalid-mode')
+
+
+def test_set_mode_setter(vim):
+    vim.mode = 'insert'
+    vim.send_keys('spam')
+    vim.mode = 'normal'
+    assert vim.display_lines()[0].strip() == 'spam'
+
+
+def test_executable(vim):
+    assert 'vim' in vim.executable
+    assert os.path.isabs(vim.executable)
+
+
+def test_args(vim):
+    assert '-u' in vim.args
+
+
+def test_encoding(vim):
+    assert vim.encoding.lower() == 'utf-8'
+
+
+def test_screen_size(vim):
+    assert vim.screen_size == (80, 24)
+
+
+def test_screen_size_setter(vim):
+    screen_size = (120, 32)
+    vim.screen_size = screen_size
+    assert vim.screen_size == screen_size
+    assert all(len(line) == screen_size[0] for line in vim.display_lines())
+
+
+def test_timeout(vim):
+    assert 0 < vim.timeout < 1
+
+
+def test_timeout_setter(vim):
+    vim.timeout = 10
+    assert vim.timeout == 10

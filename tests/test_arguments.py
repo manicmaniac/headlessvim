@@ -1,24 +1,30 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import pytest
 from headlessvim.arguments import Parser
 
 
-class TestParser(unittest.TestCase):
-    def setUp(self):
-        self.parser = Parser('-N -i NONE -n -u NONE')
+@pytest.fixture
+def default_args(request):
+    return ['-N', '-i', 'NONE', '-n', '-u', 'NONE']
 
-    def testParse(self):
-        expect = ['-N', '-i', 'NONE', '-n', '-u', 'NONE']
-        self.assertEqual(self.parser.parse(None), expect)
-        args = ['-i', 'NONE', '-u', 'NONE']
-        self.assertEqual(self.parser.parse('-i NONE -u NONE'), args)
-        self.assertEqual(self.parser.parse(args), args)
 
-    def testDefaultArgs(self):
-        expect = '-N -i NONE -n -u NONE'
-        self.assertEqual(self.parser.default_args, expect)
+@pytest.fixture
+def parser(request, default_args):
+    return Parser(default_args)
+
+
+@pytest.fixture
+def args(request):
+    return ['-i', 'NONE', '-u', 'NONE']
+
+
+def test_parse(parser, default_args, args):
+    assert parser.parse(None) == default_args
+    assert parser.parse('-i NONE -u NONE') == args
+    assert parser.parse(args) == args
+
+
+def test_default_args(parser, default_args):
+    assert parser.default_args == default_args
