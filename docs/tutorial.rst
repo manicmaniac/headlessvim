@@ -31,8 +31,10 @@ the background *Vim* process.
 ``open`` takes some arguments which are passed to the constructor of ``Vim``.
 
 .. autofunction:: headlessvim.open
+    :noindex:
 
 .. autoclass:: headlessvim.Vim
+    :noindex:
 
 .. note::
     Make sure not instantiate ``Vim`` by its constructor.

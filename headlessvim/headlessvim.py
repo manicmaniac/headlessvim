@@ -31,8 +31,8 @@ class Vim(object):
 
     ``Vim`` object behaves as ``contextmanager``.
 
-    :cvar default_args: the default launch argument of *Vim*
-    :vartype default_args: string or list of string
+    :cvar Vim.default_args: the default launch argument of *Vim*
+    :vartype Vim.default_args: string or list of string
     """
     default_args = '-N -i NONE -n -u NONE'
 
@@ -191,7 +191,7 @@ class Vim(object):
         """
         Execute command on *Vim*.
         .. warning:: Do not use ``redir`` command if ``capture`` is ``True``.
-                     It's already enabled for internal use.
+        It's already enabled for internal use.
 
         If ``capture`` argument is set ``False``,
         the command execution becomes slightly faster.
