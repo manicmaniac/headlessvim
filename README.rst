@@ -1,5 +1,5 @@
 headlessvim
-###########
+===========
 
 .. image:: https://img.shields.io/travis/manicmaniac/headlessvim.svg
     :target: https://travis-ci.org/manicmaniac/headlessvim
@@ -20,17 +20,15 @@ headlessvim
     :alt: Python Versions
 
 Introduction
-============
+------------
 
 ``headlessvim`` makes Vim programmable to support developping Vim plugins.
 
 The most distinctive characteristic is,
 ``headlessvim`` NEVER needs ``+clientserver`` feature.
 
-Also, ``headlessvim`` is fully compatible among Python 2.6, 2.7, 3.2, 3.3, 3.4.
-
 Install
-=======
+-------
 
 Using ``pip`` (recommended)
 
@@ -44,8 +42,8 @@ The good old ``setup.py``
 
     python setup.py install
 
-Examples
-========
+Usage
+-----
 
 A simple example is here:
 
@@ -82,10 +80,13 @@ Integrating to ``unittest``:
             res = self.vim.echo('"ham egg"')
             self.assertEqual(res, 'ham egg')
 
-Testing
-=======
+Documentation
+-------------
 
-The unit test requires ``pytest`` module.
+See `the online document <http://pythonhosted.org/headlessvim/>`_ for more information.
+
+Testing
+-------
 
 Execute:
 
@@ -95,7 +96,7 @@ Execute:
 
 
 License
-=======
+-------
 
 The MIT License.
 
