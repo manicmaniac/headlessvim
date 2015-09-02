@@ -10,12 +10,16 @@ from setuptools.command.test import test as TestCommand
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = ['-v', self.distribution.test_suite]
+        self._test_args = (
+            [self.distribution.test_suite],
+            ['--doctest-glob=*.rst', 'docs'],
+            ['--doctest-modules', 'headlessvim'],
+        )
         self.test_suite = True
 
     def run_tests(self):
         import pytest
-        sys.exit(pytest.main(self.test_args))
+        sys.exit(any(map(pytest.main, self._test_args)))
 
 
 def version_from(path):

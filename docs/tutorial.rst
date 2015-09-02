@@ -79,7 +79,7 @@ More complex example:
     'spam'
     >>> import os
     >>> env = dict(os.environ, LANG='C')
-    >>> with headlessvim.open(executable='/usr/bin/vim', args='-N -u /etc/vim/vimrc', env=env):
+    >>> with headlessvim.open(executable='/usr/bin/vim', args='-N -u /etc/vim/vimrc', env=env): # doctest: +SKIP
     ...    vim.send_keys('iham\033')
     ...    vim.display_lines()[0].strip()
     ...

@@ -102,7 +102,8 @@ class Vim(object):
 
         Example:
 
-        >>> with headlessvim.open(size=(64, 16)) as vim:
+        >>> import headlessvim
+        >>> with headlessvim.open(size=(64, 16)) as vim: # doctest: +SKIP
         ...     print(vim.display())
         ...
         ~
@@ -148,9 +149,10 @@ class Vim(object):
 
         Example:
 
+        >>> import headlessvim
         >>> with headlessvim.open() as vim:
         ...     vim.send_keys('ispam\033')
-        ...     vim.display_lines()[0].strip()
+        ...     str(vim.display_lines()[0].strip())
         ...
         'spam'
 
@@ -196,6 +198,7 @@ class Vim(object):
 
         Example:
 
+        >>> import headlessvim
         >>> with headlessvim.open() as vim:
         ...     vim.command('echo 0')
         ...
@@ -230,6 +233,7 @@ class Vim(object):
 
         Example:
 
+        >>> import headlessvim
         >>> with headlessvim.open() as vim:
         ...     vim.echo('0')
         ...
@@ -261,6 +265,7 @@ class Vim(object):
 
         Example:
 
+        >>> import headlessvim
         >>> with headlessvim.open() as vim:
         ...     vim.set_mode('insert')
         ...     vim.mode = 'normal' # also accessible as property
