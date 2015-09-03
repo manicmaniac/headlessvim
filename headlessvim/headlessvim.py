@@ -62,7 +62,7 @@ class Vim(object):
         self._stream = pyte.Stream()
         self._stream.attach(self._screen)
         self._timeout = timeout
-        self._tempfile = tempfile.NamedTemporaryFile(mode='w+')
+        self._tempfile = tempfile.NamedTemporaryFile(mode='r')
         self._runtimepath = None
         self.wait()
 
@@ -216,12 +216,11 @@ class Vim(object):
         :rtype: string
         """
         if capture:
-            self.command('redir! > {0}'.format(self._tempfile.name), False)
+            self.command('redir! >> {0}'.format(self._tempfile.name), False)
         self.set_mode('command')
         self.send_keys('{0}\n'.format(command))
         if capture:
             self.command('redir END', False)
-            self._tempfile.seek(0)
             return self._tempfile.read().strip('\n')
 
     def echo(self, expr):
