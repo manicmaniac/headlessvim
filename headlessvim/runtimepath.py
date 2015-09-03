@@ -76,4 +76,4 @@ class RuntimePath(collections.MutableSequence):
     def _sync(self):
         vim = self._ref()
         if vim:
-            vim.command('set {0}'.format(str(self)), False)
+            vim.command('set {0!s}'.format(self), False)
