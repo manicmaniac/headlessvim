@@ -10,16 +10,12 @@ from setuptools.command.test import test as TestCommand
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self._test_args = (
-            [self.distribution.test_suite],
-            ['--doctest-glob=*.rst', 'docs'],
-            ['--doctest-modules', 'headlessvim'],
-        )
+        self.test_args = []
         self.test_suite = True
 
     def run_tests(self):
         import pytest
-        sys.exit(any(map(pytest.main, self._test_args)))
+        sys.exit(pytest.main(self.test_args))
 
 
 def version_from(path):
@@ -63,6 +59,5 @@ setup(
     install_requires=['pyte>=0.4.10', 'six>=1.9.0'],
     tests_require=['pytest', 'mock'],
     setup_requires=['flake8'],
-    test_suite='tests',
     cmdclass={'test': PyTest},
 )
