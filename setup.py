@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import ast
+import os.path
 import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+
+sys.path.insert(0, os.path.abspath('headlessvim'))
+from _version import * # flake8: noqa
+sys.path.pop(0)
 
 
 class PyTest(TestCommand):
@@ -18,18 +22,6 @@ class PyTest(TestCommand):
         sys.exit(pytest.main(self.test_args))
 
 
-def version_from(path):
-    with open(path) as f:
-        source = f.read()
-    module = ast.parse(source)
-    for node in ast.walk(module):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if target.id == '__version__':
-                    assert isinstance(node.value, ast.Str)
-                    return node.value.s
-
-
 def read(path):
     with open(path) as f:
         return f.read()
@@ -37,7 +29,7 @@ def read(path):
 
 setup(
     name='headlessvim',
-    version=version_from('headlessvim/__init__.py'),
+    version=__version__,
     description='programmable Vim, no need of +clientserver!',
     long_description=read('README.rst'),
     keywords='vim test',
@@ -52,8 +44,8 @@ setup(
         'Programming Language :: Python :: 3.4',
         'License :: OSI Approved :: MIT License',
     ],
-    author='Ryosuke Ito',
-    author_email='rito.0305@gmail.com',
+    author=__author__,
+    author_email=__email__,
     license='MIT',
     packages=['headlessvim'],
     install_requires=read('requirements.txt').splitlines(),

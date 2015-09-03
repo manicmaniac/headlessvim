@@ -20,7 +20,4 @@ Example:
 """
 
 from .headlessvim import * # flake8: noqa
-
-
-__author__ = 'Ryosuke Ito'
-__version__ = '0.0.4'
+from ._version import * # flake8: noqa

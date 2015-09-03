@@ -12,26 +12,13 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import ast
 import sys
 import os
 
 
-def get_var(name, path):
-    with open(path) as f:
-        source = f.read()
-    module = ast.parse(source)
-    for node in ast.walk(module):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if target.id == name:
-                    assert isinstance(node.value, ast.Str)
-                    return node.value.s
-
-
-__author__ = get_var('__author__', '../headlessvim/__init__.py')
-__version__ = get_var('__version__', '../headlessvim/__init__.py')
-
+sys.path.insert(0, os.path.abspath('../headlessvim'))
+from _version import * # flake8: noqa
+sys.path.pop(0)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
