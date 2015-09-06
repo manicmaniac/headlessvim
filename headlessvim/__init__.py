@@ -15,13 +15,15 @@ Example:
 """
 
 import tempfile
+
 import pyte
-from ._version import * # flake8: noqa
+
 from . import (
     process,
     arguments,
     runtimepath,
 )
+from ._version import * # flake8: noqa
 
 
 __all__ = ['Vim', 'open']

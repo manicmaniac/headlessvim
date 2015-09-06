@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import pytest
 import mock
+import pytest
+
 from headlessvim.runtimepath import RuntimePath
 
 

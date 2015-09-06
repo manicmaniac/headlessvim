@@ -3,11 +3,12 @@
 
 import os.path
 import sys
+
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 sys.path.insert(0, os.path.abspath('headlessvim'))
-from _version import * # flake8: noqa
+from _version import *  # flake8: noqa
 sys.path.pop(0)
 
 

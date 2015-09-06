@@ -6,6 +6,7 @@
 """
 
 import shlex
+
 import six
 
 
