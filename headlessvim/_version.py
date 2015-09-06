@@ -6,4 +6,4 @@ __all__ = ['__author__', '__email__', '__version__']
 
 __author__ = 'Ryosuke Ito'
 __email__ = 'rito.0305@gmail.com'
-__version__ = '0.0.4'
+__version__ = '0.0.5'

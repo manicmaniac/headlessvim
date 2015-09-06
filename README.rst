@@ -1,11 +1,13 @@
 headlessvim
 ===========
 
-.. image:: https://img.shields.io/travis/manicmaniac/headlessvim.svg
+.. image:: https://img.shields.io/travis/manicmaniac/headlessvim/master.svg
     :target: https://travis-ci.org/manicmaniac/headlessvim
+    :alt: Travis CI
 
-.. image:: https://img.shields.io/coveralls/manicmaniac/headlessvim.svg
+.. image:: https://img.shields.io/coveralls/manicmaniac/headlessvim/master.svg
     :target: https://coveralls.io/github/manicmaniac/headlessvim?branch=master
+    :alt: Coveralls
 
 .. image:: https://img.shields.io/codeclimate/github/manicmaniac/headlessvim.svg
     :target: https://codeclimate.com/github/manicmaniac/headlessvim
