@@ -4,7 +4,7 @@
 import pytest
 import os
 import mock
-from headlessvim.headlessvim import Vim, open
+from headlessvim import Vim, open
 
 
 @pytest.fixture

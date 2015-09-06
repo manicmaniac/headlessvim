@@ -30,12 +30,6 @@ the background *Vim* process.
 
 ``open`` takes some arguments which are passed to the constructor of ``Vim``.
 
-.. autofunction:: headlessvim.open
-    :noindex:
-
-.. autoclass:: headlessvim.Vim
-    :noindex:
-
 .. note::
     Make sure not instantiate ``Vim`` by its constructor.
     It's like the relationship between built-in ``file`` and ``open``.
@@ -50,7 +44,7 @@ Let it say something:
 Yes, ``vim.echo`` actually invokes ``:echo`` command of the background *Vim*,
 so you should quote bare words twice.
 
-To know what is possible, see :py:class:`headlessvim.headlessvim.Vim`.
+To know what is possible, see :py:class:`headlessvim.Vim`.
 
 Generally, something which has been opened should be closed
 when the manipulation has been finished.

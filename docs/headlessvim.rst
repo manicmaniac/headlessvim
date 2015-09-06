@@ -24,14 +24,6 @@ headlessvim.arguments module
     :undoc-members:
     :show-inheritance:
 
-headlessvim.headlessvim module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: headlessvim.headlessvim
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 headlessvim.process module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
