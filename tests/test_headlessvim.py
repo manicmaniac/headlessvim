@@ -60,6 +60,13 @@ def test_close_zombie(zombie_vim):
     vim._process.kill.assert_called_once_with()
 
 
+def test_del(zombie_vim):
+    vim = zombie_vim
+    vim.__del__()
+    vim._process.terminate.assert_called_once_with()
+    vim._process.kill.assert_called_once_with()
+
+
 def test_context_manager():
     with open() as vim:
         assert isinstance(vim, Vim)

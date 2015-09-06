@@ -66,6 +66,10 @@ class Vim(object):
         self._runtimepath = None
         self.wait()
 
+    def __del__(self):
+        if self.is_alive():
+            self.close()
+
     def __enter__(self):
         return self
 
